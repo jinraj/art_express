@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-backend-deployment
+  labels:
+    app: nodejs-backend
+spec:
+  replicas: 1 # You can start with 1 replica for testing
+  selector:
+    matchLabels:
+      app: nodejs-backend
+  template:
+    metadata:
+      labels:
+        app: nodejs-backend
+    spec:
+      containers:
+      - name: nodejs-backend
+        image: iimacr.azurecr.io/iim-docker-image-nodejs:v1 # IMPORTANT: Use your ACR name and image tag
+        ports:
+        - containerPort: 5000 # IMPORTANT: Match the EXPOSE port in your Node.js Dockerfile
+        env:
+          # Example: Environment variable for MongoDB connection string
+          # Replace <YOUR_MONGO_CONNECTION_STRING> with your actual MongoDB connection string
+          # For production, consider using Kubernetes Secrets for sensitive data
+        - name: MONGODB_URI
+          value: "mongodb://<YOUR_MONGO_CONNECTION_STRING>" # E.g., mongodb://localhost:27017/mydb or your Atlas/Azure Cosmos DB URI
+          # Add any other environment variables your Node.js backend needs
+        - name: NODE_ENV
+          value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-backend-service
+spec:
+  selector:
+    app: nodejs-backend
+  ports:
+    - protocol: TCP
+      port: 5000 # The port the service will listen on (internal to cluster)
+      targetPort: 5000 # The port your Node.js application is running on inside the container
+  type: ClusterIP # Use ClusterIP for backend, as it's only accessed by frontend within the cluster

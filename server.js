@@ -9,7 +9,7 @@ const fastify = require('fastify')({
 const cors = require('@fastify/cors');
 
 // Define the port the server will listen on.
-const PORT = 3000;
+const PORT = 5000;
 
 // --- In-memory Data Store ---
 // This array will act as our temporary database.
